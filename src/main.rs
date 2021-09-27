@@ -82,7 +82,7 @@ fn cargo_lock_find_package<'a>(toml: &'a Toml, pkg_name: &str) -> Result<&'a Tom
             pkgs.iter().find(|pkg| {
                 pkg.get("name").map_or(
                     false, |name| name.as_str().unwrap_or("") == pkg_name,
-                ) && pkg.get("source").is_some()
+                )
             }).map_or(
                 Err(format!("failed to find package {}", pkg_name)),
                 |x| Ok(x),
@@ -122,6 +122,9 @@ fn crate_name_version(toml: &Toml, crate_name: &str) -> Result<String, String> {
 fn parse_deps(toml: &Toml, top_pkg_name: &str) -> Result<Vec<String>, String> {
     match cargo_lock_find_package(toml, top_pkg_name)? {
         &Toml::Table(ref pkg) => {
+            if pkg.get("source").is_none() {
+                return Ok(vec![]);
+            }
             match pkg.get("dependencies") {
                 Some(&Toml::Array(ref deps_toml_array)) => {
                     deps_toml_array.iter()
