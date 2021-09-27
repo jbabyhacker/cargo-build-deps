@@ -82,7 +82,7 @@ fn cargo_lock_find_package<'a>(toml: &'a Toml, pkg_name: &str) -> Result<&'a Tom
             pkgs.iter().find(|pkg| {
                 pkg.get("name").map_or(
                     false, |name| name.as_str().unwrap_or("") == pkg_name,
-                )
+                ) && pkg.get("source").is_some()
             }).map_or(
                 Err(format!("failed to find package {}", pkg_name)),
                 |x| Ok(x),
